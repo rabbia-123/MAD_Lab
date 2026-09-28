@@ -1,3 +1,7 @@
+// Week3.dart - Library Desk Assistant
+// Name: bibi rabbia
+//Roll no:04072313042
+
 final List<Map<String, dynamic>> books = [
   {
     'title': 'Dart in Action',
@@ -83,6 +87,61 @@ Map<String, int> buildStock() {
   return {for (var b in books) b['title'] as String: b['copies'] as int};
 }
 
+class Box<T> {
+  T value;
+  Box(this.value);
+}
+
+T firstOr<T>(List<T> items, T fallback) {
+  if (items.isEmpty) {
+    return fallback;
+  }
+  return items.first;
+}
+
+class Pair<A, B> {
+  final A first;
+  final B second;
+  Pair(this.first, this.second);
+
+  @override
+  String toString() => '($first, $second)';
+}
+
+class BookNotFoundException implements Exception {
+  final String title;
+  BookNotFoundException(this.title);
+}
+
+class BookNotAvailableException implements Exception {
+  final String title;
+  BookNotAvailableException(this.title);
+}
+
+void checkOut(Map<String, int> stock, String title) {
+  if (!stock.containsKey(title)) {
+    throw BookNotFoundException(title);
+  }
+  if (stock[title]! <= 0) {
+    throw BookNotAvailableException(title);
+  }
+  stock[title] = stock[title]! - 1;
+}
+
+Map<String, dynamic> findBook(String title) {
+  return books.firstWhere((b) => b['title'] == title);
+}
+
+Future<String> fetchBookOfTheDay() async {
+  await Future.delayed(Duration(seconds: 1));
+  return 'Dart in Action';
+}
+
+Future<String> fetchBroken() async {
+  await Future.delayed(Duration(milliseconds: 500));
+  throw Exception('Server down');
+}
+
 void main() async {
   part1();
   part2();
@@ -146,9 +205,13 @@ void part3() {
   var oldest = years.reduce((x, y) => x < y ? x : y);
   print('Oldest year: $oldest');
 
-  var sorted = List.of(books);
-  sorted.sort((x, y) => (x['year'] as int).compareTo(y['year'] as int));
-  print('By year: ${sorted.map((b) => b['title'] as String).toList()}');
+var sortedBooks = List.of(books);
+sortedBooks.sort(
+  (x, y) => (x['year'] as int).compareTo(y['year'] as int),
+);
+print(
+  'By year: ${sortedBooks.map((b) => b['title'] as String).toList()}',
+);
 
   var stock = buildStock();
   print('Stock: $stock');
@@ -173,12 +236,62 @@ void part3() {
 
 void part4() {
   print('--- Part 4 ---');
+  var intBox = Box<int>(5);
+  var strBox = Box<String>('dart');
+  print('Box<int>: ${intBox.value}');
+  print('Box<String>: ${strBox.value}');
+
+  print(firstOr(['Dart in Action', 'Clean Code'], 'none'));
+  print(firstOr<String>([], 'z'));
+
+  print(Pair('Dart in Action', 3));
 }
 
 void part5() {
   print('--- Part 5 ---');
+  var stock = buildStock();
+  for (var title in ['Dart in Action', 'Flutter Basics', 'Unknown Book']) {
+    try {
+      checkOut(stock, title);
+      print('Checked out: $title');
+    } on BookNotAvailableException catch (e) {
+      print('Sorry: "${e.title}" has no copies left');
+    } on BookNotFoundException catch (e) {
+      print('Not found: "${e.title}"');
+    } finally {
+      print('Transaction logged.');
+    }
+  }
+  print('Copies left of Dart in Action: ${stock['Dart in Action']}');
+
+  try {
+    findBook('Missing');
+  } on StateError {
+    print('Search failed: no such book');
+  }
 }
 
 Future<void> part6() async {
   print('--- Part 6 ---');
+  print('Fetching...');
+  var book = await fetchBookOfTheDay();
+  print('Book of the day: $book');
+
+  try {
+    await fetchBroken();
+  } catch (e) {
+    print('Fetch failed: $e');
+  }
 }
+//reflection answer
+// 1. I would use fold when I need an initial value.
+//    fold can also work with an empty list, but reduce cannot.
+
+// 2. A closure remembers a variable from the outer function.
+//    In makeCounter, the variable is count.
+
+// 3. The specific exception should come before catch (e).
+//    Otherwise the general catch can handle it first.
+
+// 4. Without await, I get a Future instead of the actual result.
+//    await waits for the result before continuing.

@@ -1,8 +1,6 @@
-#Course Roster Console App
-#Bibi Rabbia
+#Course Roster Console App #Bibi Rabbia
 
-This is a simple Course Roster Console App made in Dart.
-Completed Parts
+This is a simple Course Roster Console App made in Dart. Completed Parts
 
 Part 1 — Setup & Welcome
 
