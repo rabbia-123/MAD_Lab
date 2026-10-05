@@ -36,6 +36,9 @@ class MenuItem {
   MenuItem.fromString(String text)
       : name = text.split(':')[0],
         price = int.parse(text.split(':')[1]);
+
+  @override
+  String toString() => '$name (Rs $price)';
 }
 
 class OrderLog {
@@ -67,8 +70,64 @@ class OrderLine {
   String get label => '${item.name} x$qty';
 }
 
+class StudentCard {
+  final String owner;
+  int _balance;
+
+  StudentCard(this.owner) : _balance = 0;
+
+  int get balance => _balance;
+
+  set balance(int v) {
+    if (v < 0) {
+      _balance = 0;
+    } else if (v > balanceCap) {
+      _balance = balanceCap;
+    } else {
+      _balance = v;
+    }
+  }
+}
+
+class Coupon {
+  static final Map<String, Coupon> _cache = {};
+  final String code;
+  final int percent;
+  final int minSpend;
+
+  Coupon(this.code, this.percent)
+      : minSpend = percent * 70,
+        assert(percent >= 1 && percent <= 50, 'percent must be 1 to 50');
+
+  factory Coupon.fromCode(String code) {
+    return _cache.putIfAbsent(code, () => Coupon(code, couponPercent));
+  }
+
+  int discountOn(int amount) {
+    if (amount >= minSpend) {
+      return amount * percent ~/ 100;
+    }
+    return 0;
+  }
+}
+
 OrderLine mainOrder() =>
     OrderLine(MenuItem(menu[u], priceOf(u)), 2 + (t + u) % 5);
+
+List<MenuItem> buildMenu() {
+  return [
+    for (int k = 0; k < 4; k++)
+      MenuItem.fromString(
+          '${menu[(u + 3 * k) % 10]}:${priceOf((u + 3 * k) % 10)}'),
+  ];
+}
+
+List<OrderLine> buildReceipt() {
+  var items = buildMenu().take(3).toList();
+  return [
+    for (int k = 0; k < 3; k++) OrderLine(items[k], 1 + (t + k) % 4),
+  ];
+}
 
 void main() {
   print('Seed: $seed (t=$t, u=$u)');
@@ -78,6 +137,10 @@ void main() {
   step4();
   step5();
   step6();
+  step7();
+  step8();
+  step9();
+  step10();
 }
 
 void step1() {
@@ -150,3 +213,79 @@ void step6() {
   print('Step 6: big order? ${line.isBigOrder} (limit $bigOrderLimit)');
   print('Step 6: label=${line.label}');
 }
+
+void step7() {
+  print('--- Step 7 ---');
+  var card = StudentCard('S$seed');
+
+  card.balance = seed * 10 + 50;
+  print('Step 7: topped up -> ${card.balance}');
+
+  card.balance = -seed - 1;
+  print('Step 7: bad value -> ${card.balance}');
+
+  card.balance = balanceCap - u;
+  print('Step 7: reset -> ${card.balance}');
+
+  card.balance = card.balance - mainOrder().grand;
+  print('Step 7: paid order -> ${card.balance}');
+}
+
+void step8() {
+  print('--- Step 8 ---');
+  var items = buildMenu();
+  var priciest = items.reduce((a, b) => a.price >= b.price ? a : b);
+  var sum = items.fold(0, (s, e) => s + e.price);
+  print('Step 8: menu = $items');
+  print('Step 8: priciest = ${priciest.name}');
+  print('Step 8: sum = $sum');
+}
+
+void step9() {
+  print('--- Step 9 ---');
+  var receipt = buildReceipt();
+  int sum = 0;
+  for (var line in receipt) {
+    print('Step 9: ${line.label} = ${line.grand}');
+    OrderLog().add('receipt: ${line.label}');
+    sum += line.grand;
+  }
+  print('Step 9: receipt total = $sum');
+  print('Step 9: log size = ${OrderLog().entries.length}');
+}
+
+void step10() {
+  print('--- Step 10 ---');
+  var code = 'CAFE${seed.toString().padLeft(2, '0')}';
+  var c1 = Coupon.fromCode(code);
+  var c2 = Coupon.fromCode(code);
+  int receipt = buildReceipt().fold(0, (s, line) => s + line.grand);
+  int discount = c1.discountOn(receipt);
+  print('Step 10: ${c1.code} gives ${c1.percent}% off, min spend ${c1.minSpend}');
+  print('Step 10: cached? ${identical(c1, c2)}');
+  print('Step 10: receipt $receipt, discount $discount, payable ${receipt - discount}');
+}
+// THINK ANSWERS:
+
+
+//Step 2: The price is not final because the constructor changes it later. If the price is too low, it changes it to the minimum price.
+
+//Step 3: The price check is inside the main constructor. MenuItem.free() directly sets the price to 0, so the price check does not run.
+
+// Step 4: The underscore makes _instance and _internal private. If they were public, anyone could make another OrderLog or change _instance. This would break the single log rule.
+
+// Step 5: The initializer list runs before the constructor body. So, we cannot use the other fields at that time. We should use the values from the constructor parameters to calculate the tax.
+
+// Step 6: grand is only a getter, so we cannot give it a new value. We need to add a setter if we want to change it.
+
+// Step 7: Instead of changing the value to the limit, the setter can show an error or simply reject the value.
+
+// Reflection Questions
+
+// Q1: The shorthand makes the code shorter and saves time. We do not have to write this.field = field again and again.
+
+// Q2: I use a named constructor when I want another way to create an object, like MenuItem.free(). I use a factory constructor when I want to return an existing object instead of making a new one.
+
+// Q3: A field in the constructor body cannot be final because it is assigned later. A field in the initializer list can be final because it is assigned before the constructor body.
+
+// Q4: A getter is useful when we want to calculate a value from other fields, like grand = total + tax. A setter is useful when we want to check a value before saving it.
