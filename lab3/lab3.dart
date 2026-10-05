@@ -1,3 +1,5 @@
+//lab3.dart   _ campus cafe order system
+//name    bibi rabbia    roll no 04072313042
 const String rollNo = '04072313042';
 
 final int seed = int.parse(rollNo.substring(rollNo.length - 2));
@@ -59,6 +61,10 @@ class OrderLine {
       : total = item.price * qty,
         tax = item.price * qty * taxPercent ~/ 100,
         assert(qty > 0, 'qty must be positive');
+
+  int get grand => total + tax;
+  bool get isBigOrder => grand > bigOrderLimit;
+  String get label => '${item.name} x$qty';
 }
 
 OrderLine mainOrder() =>
@@ -71,6 +77,7 @@ void main() {
   step3();
   step4();
   step5();
+  step6();
 }
 
 void step1() {
@@ -134,4 +141,12 @@ void step5() {
   } on AssertionError {
     print('Step 5: assert fired');
   }
+}
+
+void step6() {
+  print('--- Step 6 ---');
+  var line = mainOrder();
+  print('Step 6: grand=${line.grand}');
+  print('Step 6: big order? ${line.isBigOrder} (limit $bigOrderLimit)');
+  print('Step 6: label=${line.label}');
 }
