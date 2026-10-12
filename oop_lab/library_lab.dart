@@ -158,6 +158,20 @@ class Fine {
   String toString() => 'Fine($amount)';
 }
 
+class Member {
+  final String name;
+  final MemberType type;
+
+  Member(this.name, this.type);
+
+  Fine feeFor(LibraryItem item, int days) {
+    int fee = item.lateFee(days);
+    fee = LibraryItem.capFee(fee);
+    fee = type.applyDiscount(fee);
+    return Fine(fee);
+  }
+}
+
 Book mainBook() => Book(titles[u], yearOf(u), 100 + 3 * seed);
 
 Magazine mainMagazine() {
@@ -330,4 +344,20 @@ void step9() {
   // So I can use it with the class name, even if no object is made yet.
 }
 
-void step10() { print('--- Step 10 ---'); }
+void step10() {
+  print('--- Step 10 ---');
+  List<LibraryItem> shelf = buildShelf();
+  Member member = Member('S$seed', MemberType.values[seed % 3]);
+
+  Fine total = shelf.fold(
+    Fine(0),
+    (sum, item) => sum + member.feeFor(item, daysLate),
+  );
+
+  int borrowable = shelf.where((item) => item is Borrowable).length;
+  int renewable = shelf.where((item) => item is Renewable).length;
+
+  print('Step 10: ${shelf.length} items, $borrowable borrowable, $renewable renewable');
+  print('Step 10: ${member.name} (${member.type.name}) owes $total');
+  print('Step 10: over the cap? ${total > Fine(feeCap)}');
+}
