@@ -128,6 +128,25 @@ extension ShelfMath on List<LibraryItem> {
   int totalLateFee(int days) => fold(0, (sum, i) => sum + i.lateFee(days));
 }
 
+class Fine {
+  final int amount;
+
+  const Fine(this.amount);
+
+  Fine operator +(Fine o) => Fine(amount + o.amount);
+
+  bool operator >(Fine o) => amount > o.amount;
+
+  @override
+  bool operator ==(Object other) => other is Fine && other.amount == amount;
+
+  @override
+  int get hashCode => amount.hashCode;
+
+  @override
+  String toString() => 'Fine($amount)';
+}
+
 Book mainBook() => Book(titles[u], yearOf(u), 100 + 3 * seed);
 
 Magazine mainMagazine() {
@@ -255,6 +274,20 @@ void step7() {
   // Also, the editor can show it as a suggestion when I type a dot after the number.
 }
 
-void step8() { print('--- Step 8 ---'); }
+void step8() {
+  print('--- Step 8 ---');
+  Fine f1 = Fine(mainBook().lateFee(daysLate));
+  Fine f2 = Fine(mainMagazine().lateFee(daysLate));
+  print('Step 8: $f1 + $f2 = ${f1 + f2}');
+  print('Step 8: first bigger? ${f1 > f2}');
+  print('Step 8: equal copies? ${f1 == Fine(f1.amount)}');
+  print('Step 8: set size = ${{f1, Fine(f1.amount), f2}.length}');
+
+  // Think: Delete your hashCode and run again. What happens to the set size, and why does Dart expect both == and hashCode together?
+  // Answer: The set size would become 3 instead of 2. A set checks hashCode first,
+  // and two equal Fines would get different hash codes, so the set thinks they are different.
+  // That is why == and hashCode must always be written together.
+}
+
 void step9() { print('--- Step 9 ---'); }
 void step10() { print('--- Step 10 ---'); }
