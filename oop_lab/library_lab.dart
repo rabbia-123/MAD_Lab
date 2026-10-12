@@ -41,7 +41,19 @@ abstract class Borrowable {
   void giveBack();
 }
 
-class Book extends LibraryItem implements Borrowable {
+mixin Renewable {
+  int renewals = 0;
+
+  bool renew(int limit) {
+    if (renewals >= limit) {
+      return false;
+    }
+    renewals++;
+    return true;
+  }
+}
+
+class Book extends LibraryItem with Renewable implements Borrowable {
   final int pages;
   bool _out = false;
 
@@ -79,7 +91,7 @@ class Magazine extends LibraryItem {
   int lateFee(int days) => days * (feePerDay ~/ 2);
 }
 
-class Dvd extends LibraryItem {
+class Dvd extends LibraryItem with Renewable {
   final int minutes;
 
   Dvd(super.title, super.year, this.minutes);
@@ -167,14 +179,29 @@ void step4() {
     print('Step 4: ${item.runtimeType} borrowable? ${item is Borrowable}');
   }
 
-
   // Think: You wrote all three method bodies yourself. What would extends Borrowable have given you for free, and why is that not what you wanted?
   // Answer: extends is used to inherit code from a parent class, but Borrowable only defines methods without their code.
   // Also, Book already extends LibraryItem, and Dart allows only one parent class, so implements is the right choice here.
-
 }
 
-void step5() { print('--- Step 5 ---'); }
+void step5() {
+  print('--- Step 5 ---');
+  Book book = mainBook();
+  int ok = 0;
+  for (int k = 0; k < renewAttempts; k++) {
+    if (book.renew(renewLimit)) {
+      ok++;
+    }
+  }
+  print('Step 5: renewed $ok of $renewAttempts attempts (limit $renewLimit)');
+  print('Step 5: renew once more? ${book.renew(renewLimit)}');
+  print('Step 5: dvd can renew too? ${mainDvd().renew(1)}');
+
+  // Think: Book and Dvd need the same renew code but Magazine must not have it. Why is a mixin a better fit than putting renew in LibraryItem?
+  // Answer: If I put renew in Libraryitem, every item would get it, even Magazine.
+  // A mixin lets me add the renew code only to Book and Dvd, so Magazine stays without it.
+}
+
 void step6() { print('--- Step 6 ---'); }
 void step7() { print('--- Step 7 ---'); }
 void step8() { print('--- Step 8 ---'); }
