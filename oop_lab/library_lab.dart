@@ -116,6 +116,18 @@ enum MemberType {
   int applyDiscount(int fee) => fee - (fee * discountPercent) ~/ 100;
 }
 
+extension MoneyText on int {
+  String get rs => 'Rs $this';
+}
+
+extension Initials on String {
+  String get initials => split(' ').map((w) => w[0]).join();
+}
+
+extension ShelfMath on List<LibraryItem> {
+  int totalLateFee(int days) => fold(0, (sum, i) => sum + i.lateFee(days));
+}
+
 Book mainBook() => Book(titles[u], yearOf(u), 100 + 3 * seed);
 
 Magazine mainMagazine() {
@@ -228,7 +240,21 @@ void step6() {
   // With an enum, a wrong name gives an error right away.
 }
 
-void step7() { print('--- Step 7 ---'); }
+void step7() {
+  print('--- Step 7 ---');
+  MemberType type = MemberType.values[seed % 3];
+  int fee = mainBook().lateFee(daysLate);
+  int discounted = type.applyDiscount(fee);
+  List<LibraryItem> shelf = [mainBook(), mainMagazine(), mainDvd()];
+  print('Step 7: ${discounted.rs}');
+  print('Step 7: initials of "${titles[u]}" = ${titles[u].initials}');
+  print('Step 7: shelf fee for $daysLate days = ${shelf.totalLateFee(daysLate).rs}');
+
+  // Think: You could have written plain functions rs(int x). What do you gain by writing 72.rs instead?
+  // Answer: 72.rs is short and easy to read. It looks like it is a part of the number.
+  // Also, the editor can show it as a suggestion when I type a dot after the number.
+}
+
 void step8() { print('--- Step 8 ---'); }
 void step9() { print('--- Step 9 ---'); }
 void step10() { print('--- Step 10 ---'); }
