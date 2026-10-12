@@ -103,6 +103,19 @@ class Dvd extends LibraryItem with Renewable {
   int lateFee(int days) => days * feePerDay * 2;
 }
 
+enum MemberType {
+  student(3, 50),
+  faculty(10, 20),
+  guest(1, 0);
+
+  final int maxLoans;
+  final int discountPercent;
+
+  const MemberType(this.maxLoans, this.discountPercent);
+
+  int applyDiscount(int fee) => fee - (fee * discountPercent) ~/ 100;
+}
+
 Book mainBook() => Book(titles[u], yearOf(u), 100 + 3 * seed);
 
 Magazine mainMagazine() {
@@ -198,11 +211,23 @@ void step5() {
   print('Step 5: dvd can renew too? ${mainDvd().renew(1)}');
 
   // Think: Book and Dvd need the same renew code but Magazine must not have it. Why is a mixin a better fit than putting renew in LibraryItem?
-  // Answer: If I put renew in Libraryitem, every item would get it, even Magazine.
+  // Answer: If I put renew in LibraryItem, every item would get it, even Magazine.
   // A mixin lets me add the renew code only to Book and Dvd, so Magazine stays without it.
 }
 
-void step6() { print('--- Step 6 ---'); }
+void step6() {
+  print('--- Step 6 ---');
+  MemberType type = MemberType.values[seed % 3];
+  int fee = mainBook().lateFee(daysLate);
+  print('Step 6: member type = ${type.name} (index ${type.index})');
+  print('Step 6: max loans = ${type.maxLoans}');
+  print('Step 6: book fee $fee -> ${type.applyDiscount(fee)} after discount');
+
+  // Think: Why is MemberType.student safer than the string 'student'?
+  // Answer: If I make a spelling mistake in a string, Dart will not tell me.
+  // With an enum, a wrong name gives an error right away.
+}
+
 void step7() { print('--- Step 7 ---'); }
 void step8() { print('--- Step 8 ---'); }
 void step9() { print('--- Step 9 ---'); }
