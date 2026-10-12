@@ -1,27 +1,34 @@
 // library_lab.dart  -  Campus Library System
 // Name: bibi rabbia    Roll no: 04072313042
 
-const String rollNo = '04072313042';   // e.g. '21F-0347'
+const String rollNo = '04072313042'; // e.g. '21F-0347'
 
 // ===== Seeded settings (generated from YOUR roll number). Do not edit. =====
 final int seed = int.parse(rollNo.substring(rollNo.length - 2));
-final int t = seed ~/ 10;   // tens digit
-final int u = seed % 10;    // units digit
+final int t = seed ~/ 10; // tens digit
+final int u = seed % 10; // units digit
 
 const List<String> titles = [
-  'Dart Basics', 'Flutter In Action', 'Data Structures', 'Operating Systems',
-  'Mobile Design', 'Clean Code', 'Algorithms Unlocked', 'Computer Networks',
-  'Database Systems', 'Software Testing',
+  'Dart Basics',
+  'Flutter In Action',
+  'Data Structures',
+  'Operating Systems',
+  'Mobile Design',
+  'Clean Code',
+  'Algorithms Unlocked',
+  'Computer Networks',
+  'Database Systems',
+  'Software Testing',
 ];
 
-int yearOf(int i) => 1995 + 2 * i + t;      // publication year of titles[i]
-final int feePerDay = 5 + t;                // late fee per day, in rupees
-final int daysLate = 3 + (t + u) % 6;       // normal number of days late
-final int daysBig = 10 + u;                 // a long overdue period
-final int feeCap = 150 + 10 * t;            // no single fee may exceed this
-final int renewLimit = 1 + t % 3;           // renewals allowed per item
-final int renewAttempts = 2 + u;            // renewal attempts made in Step 5
-final int shelfSize = 3 + u % 4;            // items on the shelf in Steps 9-10
+int yearOf(int i) => 1995 + 2 * i + t; // publication year of titles[i]
+final int feePerDay = 5 + t; // late fee per day, in rupees
+final int daysLate = 3 + (t + u) % 6; // normal number of days late
+final int daysBig = 10 + u; // a long overdue period
+final int feeCap = 150 + 10 * t; // no single fee may exceed this
+final int renewLimit = 1 + t % 3; // renewals allowed per item
+final int renewAttempts = 2 + u; // renewal attempts made in Step 5
+final int shelfSize = 3 + u % 4; // items on the shelf in Steps 9-10
 // ===========================================================================
 
 abstract class LibraryItem {
@@ -239,9 +246,15 @@ void step2() {
 
 void step3() {
   print('--- Step 3 ---');
-  print('Step 3: Book late fee for $daysLate days = ${mainBook().lateFee(daysLate)}');
-  print('Step 3: Magazine late fee for $daysLate days = ${mainMagazine().lateFee(daysLate)}');
-  print('Step 3: Dvd late fee for $daysLate days = ${mainDvd().lateFee(daysLate)}');
+  print(
+    'Step 3: Book late fee for $daysLate days = ${mainBook().lateFee(daysLate)}',
+  );
+  print(
+    'Step 3: Magazine late fee for $daysLate days = ${mainMagazine().lateFee(daysLate)}',
+  );
+  print(
+    'Step 3: Dvd late fee for $daysLate days = ${mainDvd().lateFee(daysLate)}',
+  );
 
   // Think: Temporarily try LibraryItem('x', 2000). Read the error. Why can you not create an abstract class directly?
   // Answer: An abstract class is not complete, because lateFee() has no body.
@@ -307,7 +320,9 @@ void step7() {
   List<LibraryItem> shelf = [mainBook(), mainMagazine(), mainDvd()];
   print('Step 7: ${discounted.rs}');
   print('Step 7: initials of "${titles[u]}" = ${titles[u].initials}');
-  print('Step 7: shelf fee for $daysLate days = ${shelf.totalLateFee(daysLate).rs}');
+  print(
+    'Step 7: shelf fee for $daysLate days = ${shelf.totalLateFee(daysLate).rs}',
+  );
 
   // Think: You could have written plain functions rs(int x). What do you gain by writing 72.rs instead?
   // Answer: 72.rs is short and easy to read. It looks like it is a part of the number.
@@ -335,8 +350,12 @@ void step9() {
   buildShelf();
   List<LibraryItem> shelf = buildShelf();
   print('Step 9: items created = ${LibraryItem.created}');
-  print('Step 9: capped fee = ${LibraryItem.capFee(shelf.first.lateFee(daysBig))} (cap $feeCap)');
-  print('Step 9: const copies identical? ${identical(const Fine(10), const Fine(10))}');
+  print(
+    'Step 9: capped fee = ${LibraryItem.capFee(shelf.first.lateFee(daysBig))} (cap $feeCap)',
+  );
+  print(
+    'Step 9: const copies identical? ${identical(const Fine(10), const Fine(10))}',
+  );
   print('Step 9: new copies identical? ${identical(Fine(10), Fine(10))}');
 
   // Think: Why can created be read as LibraryItem.created without making any object first?
@@ -357,7 +376,9 @@ void step10() {
   int borrowable = shelf.where((item) => item is Borrowable).length;
   int renewable = shelf.where((item) => item is Renewable).length;
 
-  print('Step 10: ${shelf.length} items, $borrowable borrowable, $renewable renewable');
+  print(
+    'Step 10: ${shelf.length} items, $borrowable borrowable, $renewable renewable',
+  );
   print('Step 10: ${member.name} (${member.type.name}) owes $total');
   print('Step 10: over the cap? ${total > Fine(feeCap)}');
 }
