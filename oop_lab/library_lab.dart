@@ -1,6 +1,5 @@
-// library_lab.dart  -  Campus Library System 
+// library_lab.dart  -  Campus Library System
 // Name: bibi rabbia    Roll no: 04072313042
-
 
 const String rollNo = '04072313042';   // e.g. '21F-0347'
 
@@ -30,15 +29,34 @@ class LibraryItem {
   final int year;
 
   LibraryItem(this.title, this.year);
+
+  String describe() => '$title ($year)';
 }
 
 class Book extends LibraryItem {
   final int pages;
 
   Book(super.title, super.year, this.pages);
+
+  @override
+  String describe() => '${super.describe()}, $pages pages';
+}
+
+class Magazine extends LibraryItem {
+  final int issue;
+
+  Magazine(super.title, super.year, this.issue);
+
+  @override
+  String describe() => '${super.describe()}, issue $issue';
 }
 
 Book mainBook() => Book(titles[u], yearOf(u), 100 + 3 * seed);
+
+Magazine mainMagazine() {
+  int i = (u + 1) % 10;
+  return Magazine(titles[i], yearOf(i), 1 + (t + u) % 12);
+}
 
 void main() {
   print('Seed: $seed (t=$t, u=$u)');
@@ -68,7 +86,16 @@ void step1() {
   // rejects it even though the object at runtime is a Book.
 }
 
-void step2() { print('--- Step 2 ---'); }
+void step2() {
+  print('--- Step 2 ---');
+  print('Step 2: ${mainBook().describe()}');
+  print('Step 2: ${mainMagazine().describe()}');
+
+  // Think: What happens if we forget @override and write descibe() by mistake?
+  // Answer: Dart will treat descibe() as a different method, so describe() will not be overridden.
+  // The output will show the parent method's result without the book's pages or magazine's issue.
+}
+
 void step3() { print('--- Step 3 ---'); }
 void step4() { print('--- Step 4 ---'); }
 void step5() { print('--- Step 5 ---'); }
