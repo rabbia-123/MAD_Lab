@@ -24,13 +24,15 @@ final int renewAttempts = 2 + u;            // renewal attempts made in Step 5
 final int shelfSize = 3 + u % 4;            // items on the shelf in Steps 9-10
 // ===========================================================================
 
-class LibraryItem {
+abstract class LibraryItem {
   final String title;
   final int year;
 
   LibraryItem(this.title, this.year);
 
   String describe() => '$title ($year)';
+
+  int lateFee(int days);
 }
 
 class Book extends LibraryItem {
@@ -40,6 +42,9 @@ class Book extends LibraryItem {
 
   @override
   String describe() => '${super.describe()}, $pages pages';
+
+  @override
+  int lateFee(int days) => days * feePerDay;
 }
 
 class Magazine extends LibraryItem {
@@ -49,6 +54,21 @@ class Magazine extends LibraryItem {
 
   @override
   String describe() => '${super.describe()}, issue $issue';
+
+  @override
+  int lateFee(int days) => days * (feePerDay ~/ 2);
+}
+
+class Dvd extends LibraryItem {
+  final int minutes;
+
+  Dvd(super.title, super.year, this.minutes);
+
+  @override
+  String describe() => '${super.describe()}, $minutes min';
+
+  @override
+  int lateFee(int days) => days * feePerDay * 2;
 }
 
 Book mainBook() => Book(titles[u], yearOf(u), 100 + 3 * seed);
@@ -56,6 +76,11 @@ Book mainBook() => Book(titles[u], yearOf(u), 100 + 3 * seed);
 Magazine mainMagazine() {
   int i = (u + 1) % 10;
   return Magazine(titles[i], yearOf(i), 1 + (t + u) % 12);
+}
+
+Dvd mainDvd() {
+  int i = (u + 2) % 10;
+  return Dvd(titles[i], yearOf(i), 90 + seed % 40);
 }
 
 void main() {
@@ -91,12 +116,23 @@ void step2() {
   print('Step 2: ${mainBook().describe()}');
   print('Step 2: ${mainMagazine().describe()}');
 
-  // Think: What happens if we forget @override and write descibe() by mistake?
-  // Answer: Dart will treat descibe() as a different method, so describe() will not be overridden.
-  // The output will show the parent method's result without the book's pages or magazine's issue.
+  // Think: What would happen to the output if you forgot @override and mistyped the method name as descibe()?
+  // Answer: Dart would treat descibe() as a new method, and the original describe() method would still be used.
+  // So, the output would not include the book's pages or the magazine's issue.
 }
 
-void step3() { print('--- Step 3 ---'); }
+void step3() {
+  print('--- Step 3 ---');
+  print('Step 3: Book late fee for $daysLate days = ${mainBook().lateFee(daysLate)}');
+  print('Step 3: Magazine late fee for $daysLate days = ${mainMagazine().lateFee(daysLate)}');
+  print('Step 3: Dvd late fee for $daysLate days = ${mainDvd().lateFee(daysLate)}');
+
+  // Think: Temporarily try LibraryItem('x', 2000). Read the error. Why can you not create an abstract class directly?
+  // Answer: An abstract class is not complete, because lateFee() has no body.
+  // Dart does not allow making an object of it. We can only make objects of
+  // subclasses like Book, Magazine and Dvd that write the full lateFee().
+}
+
 void step4() { print('--- Step 4 ---'); }
 void step5() { print('--- Step 5 ---'); }
 void step6() { print('--- Step 6 ---'); }
