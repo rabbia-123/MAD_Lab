@@ -47,8 +47,8 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Think: widget tree (LabApp > MaterialApp > HomePage > Scaffold >
-    // SingleChildScrollView > Column > Tally > Column > Row). The Max Text
-    // in the info Row is 8 levels deep from LabApp.
+    // SingleChildScrollView > Column > Row > Text('Max: ..')). Counting
+    // from LabApp, the Text('Max: ..') is 7 levels deep.
     return Scaffold(
       appBar: AppBar(title: Text('Study Tracker: $course')),
       body: SingleChildScrollView(
@@ -67,7 +67,7 @@ class HomePage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            const Tally(), // GoalBanner yahan se hata kar Tally ke andar chala gaya
+            const Tally(),
           ],
         ),
       ),
@@ -140,12 +140,30 @@ class Tally extends StatefulWidget {
   State<Tally> createState() => _TallyState();
 }
 
+// Think: With hot reload while the count is 12, it stays 12, because hot
+// reload only injects the new widget code and keeps the State object alive.
+// A hot restart throws away the State and starts the app again, so a new
+// State is created and the count goes back to startCount.
 class _TallyState extends State<Tally> {
   int _count = startCount;
 
   void _plus() {
     setState(() {
       _count += stepSize;
+      if (_count > maxCount) _count = maxCount;
+    });
+  }
+
+  void _minus() {
+    setState(() {
+      _count -= stepSize;
+      if (_count < 0) _count = 0;
+    });
+  }
+
+  void _reset() {
+    setState(() {
+      _count = startCount;
     });
   }
 
@@ -162,6 +180,18 @@ class _TallyState extends State<Tally> {
               key: const Key('plus'),
               onPressed: _plus,
               child: Text('+$stepSize'),
+            ),
+            const SizedBox(width: 8),
+            ElevatedButton(
+              key: const Key('minus'),
+              onPressed: _minus,
+              child: Text('-$stepSize'),
+            ),
+            const SizedBox(width: 8),
+            OutlinedButton(
+              key: const Key('reset'),
+              onPressed: _reset,
+              child: const Text('Reset'),
             ),
           ],
         ),
