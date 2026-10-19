@@ -47,8 +47,8 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Think: widget tree (LabApp > MaterialApp > HomePage > Scaffold >
-    // SingleChildScrollView > Column > Row > Text('Max: ...')). The Max Text
-    // is 8 levels deep from LabApp.
+    // SingleChildScrollView > Column > Tally > Column > Row). The Max Text
+    // in the info Row is 8 levels deep from LabApp.
     return Scaffold(
       appBar: AppBar(title: Text('Study Tracker: $course')),
       body: SingleChildScrollView(
@@ -67,7 +67,7 @@ class HomePage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            GoalBanner(count: startCount, max: maxCount),
+            const Tally(), // GoalBanner yahan se hata kar Tally ke andar chala gaya
           ],
         ),
       ),
@@ -125,6 +125,47 @@ class GoalBanner extends StatelessWidget {
     return Text(
       'Progress: $count of $max ($percent%)',
       key: const Key('progress'),
+    );
+  }
+}
+
+// Think: Tally is split into two classes because a widget is the immutable
+// configuration (like a blueprint) and the State is the mutable memory that
+// holds the changing count. State survives rebuilds, while the widget itself
+// can be recreated at any time by its parent.
+class Tally extends StatefulWidget {
+  const Tally({super.key});
+
+  @override
+  State<Tally> createState() => _TallyState();
+}
+
+class _TallyState extends State<Tally> {
+  int _count = startCount;
+
+  void _plus() {
+    setState(() {
+      _count += stepSize;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Count: $_count', key: const Key('count')),
+        GoalBanner(count: _count, max: maxCount),
+        Row(
+          children: [
+            ElevatedButton(
+              key: const Key('plus'),
+              onPressed: _plus,
+              child: Text('+$stepSize'),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
