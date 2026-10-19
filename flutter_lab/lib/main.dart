@@ -30,6 +30,7 @@ final List<String> lifecycleLog = <String>[];
 void main() => runApp(const LabApp());
 
 // Keep the name LabApp and its const constructor: the checker uses them.
+// Stateless: it only builds the MaterialApp and holds no changing data.
 class LabApp extends StatelessWidget {
   const LabApp({super.key});
 
@@ -41,6 +42,7 @@ class LabApp extends StatelessWidget {
 
 // Think: runApp receives the root widget of the whole app (LabApp),
 // while MaterialApp receives as home only the first screen (HomePage).
+// Stateless: the page only arranges other widgets and never changes itself.
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -83,6 +85,7 @@ class HomePage extends StatelessWidget {
 // immutable: if the data must change, Flutter creates a new widget. Without
 // final, the analyzer/compiler complains that the fields of an @immutable
 // class must be final.
+// Stateless: name, roll and course are only inputs and never change.
 class StudentCard extends StatelessWidget {
   final String name;
   final String roll;
@@ -117,6 +120,7 @@ class StudentCard extends StatelessWidget {
 // it only displays the count and max given to it. To make it show a new
 // count, the parent State (Tally) must call setState so Flutter rebuilds
 // GoalBanner with a new count value.
+// Stateless: count and max come from the parent, it remembers nothing.
 class GoalBanner extends StatelessWidget {
   final int count;
   final int max;
@@ -137,6 +141,7 @@ class GoalBanner extends StatelessWidget {
 // configuration (like a blueprint) and the State is the mutable memory that
 // holds the changing count. State survives rebuilds, while the widget itself
 // can be recreated at any time by its parent.
+// Stateful: the count changes when the user taps the buttons.
 class Tally extends StatefulWidget {
   const Tally({super.key});
 
@@ -208,6 +213,7 @@ class _TallyState extends State<Tally> {
 // removed, the timer keeps running and calls setState on a State that is
 // already disposed. The console shows the error
 // "setState() called after dispose()".
+// Stateful: the seconds left and the build count change every second.
 class Countdown extends StatefulWidget {
   const Countdown({super.key});
 
@@ -262,6 +268,7 @@ class _CountdownState extends State<Countdown> {
 // Think: Before the fix, after 3 taps _clicks inside the State was
 // 3 * bugStep = 9, but the screen still showed 0, because without setState
 // Flutter never called build again.
+// Stateful: _clicks changes on every tap and must be shown on the screen.
 class BuggyCounter extends StatefulWidget {
   const BuggyCounter({super.key});
 
