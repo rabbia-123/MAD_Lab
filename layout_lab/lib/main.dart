@@ -102,6 +102,8 @@ class HomePage extends StatelessWidget {
             const Clock(), // Steps 1, 2, 3 (Clock contains the Probe)
             const SizedBox(height: 12),
             const SwapBoard(), // Step 5 (replaces the temporary Tile Row)
+            const SizedBox(height: 12),
+            const InfoPanel(), // Step 6
           ],
         ),
       ),
@@ -324,6 +326,48 @@ class _SwapBoardState extends State<SwapBoard> {
           key: const Key('swap'),
           onPressed: swap,
           child: const Text('Swap'),
+        ),
+      ],
+    );
+  }
+}
+
+// ===========================================================================
+// Step 6: InfoPanel (the two axes)
+// ===========================================================================
+// Think (Step 6): In a Column, which axis is the main axis?
+// In a Column the main axis is vertical (up and down). The cross axis is
+// the other one: horizontal (left and right). So crossAxisAlignment.center
+// in a Column moves the children left or right (it centres them
+// horizontally) and not up or down.
+//
+// Your values: row main axis = end, column cross axis = center.
+class InfoPanel extends StatelessWidget {
+  const InfoPanel({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          key: const Key('info-row'),
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text('Start: $startSec s', key: const Key('row-a')),
+            Text('Tick: $tick s', key: const Key('row-b')),
+            Text('Stop: $stopAt s', key: const Key('row-c')),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Column(
+          key: const Key('info-col'),
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text('Name: $studentName', key: const Key('col-a')),
+            Text('Roll no: $rollNo', key: const Key('col-b')),
+            Text('Course: $course', key: const Key('col-c')),
+          ],
         ),
       ],
     );
