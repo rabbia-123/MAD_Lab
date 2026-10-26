@@ -104,6 +104,8 @@ class HomePage extends StatelessWidget {
             const SwapBoard(), // Step 5 (replaces the temporary Tile Row)
             const SizedBox(height: 12),
             const InfoPanel(), // Step 6
+            const SizedBox(height: 12),
+            const SummaryRow(), // Step 7
           ],
         ),
       ),
@@ -133,6 +135,14 @@ class SettingsCard extends StatelessWidget {
 }
 
 // ---- Provided for Step 7. It overflows on purpose. Do not rename anything.
+// Step 7 fix: each Text is wrapped in Expanded (the key stays on the Text).
+//
+// Think (Step 7): Why does Expanded make the Text wrap its words?
+// A Row does not limit the width of its children, so a long Text wants one
+// very long line and goes outside the screen (overflow). Expanded gives each
+// child a fixed share of the width. "Constraints go down": the parent tells
+// the Text "you only have this much width". "Sizes go up": the Text then
+// breaks its words into many lines to fit and tells the parent its size.
 class SummaryRow extends StatelessWidget {
   const SummaryRow({super.key});
 
@@ -140,17 +150,23 @@ class SummaryRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(
-          'Part A: read the widget tree of the $course board from top to bottom.',
-          key: const Key('sum-a'),
+        Expanded(
+          child: Text(
+            'Part A: read the widget tree of the $course board from top to bottom.',
+            key: const Key('sum-a'),
+          ),
         ),
-        Text(
-          'Part B: build each box from small widgets and never extend a built-in class.',
-          key: const Key('sum-b'),
+        Expanded(
+          child: Text(
+            'Part B: build each box from small widgets and never extend a built-in class.',
+            key: const Key('sum-b'),
+          ),
         ),
-        Text(
-          'Part C: break the layout on purpose, then fix it with Expanded or Wrap.',
-          key: const Key('sum-c'),
+        Expanded(
+          child: Text(
+            'Part C: break the layout on purpose, then fix it with Expanded or Wrap.',
+            key: const Key('sum-c'),
+          ),
         ),
       ],
     );
