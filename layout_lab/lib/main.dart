@@ -97,7 +97,12 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 12),
             // Add each new widget BELOW the previous one, in the order the
             // steps tell you, with a SizedBox(height: 12) between widgets.
-            const Clock(), // Step 1
+            const Welcome(), // Step 4
+            const SizedBox(height: 12),
+            const Clock(), // Steps 1, 2, 3 (Clock contains the Probe)
+            const SizedBox(height: 12),
+            // Step 4: temporary Row of tiles (Step 5 moves it into SwapBoard)
+            Row(children: [Tile(tileA), Tile(tileB), Tile(tileC)]),
           ],
         ),
       ),
@@ -240,6 +245,47 @@ class Probe extends StatelessWidget {
             key: const Key('probe-context')),
         Text('Scaffold above me: $above', key: const Key('probe-above')),
       ],
+    );
+  }
+}
+
+// ===========================================================================
+// Step 4: Welcome and Tile
+// ===========================================================================
+class Welcome extends StatelessWidget {
+  const Welcome({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text('Welcome, $studentName', key: const Key('welcome')),
+    );
+  }
+}
+
+// Think (Step 4): What is this style called and why does Flutter like it?
+// It is called COMPOSITION. We built Tile by putting small widgets together
+// (an ElevatedButton and a Text) and we did not write "extends
+// ElevatedButton". Flutter likes it because it is simple and flexible: we
+// do not need a new subclass for every look, and the code is easier to
+// change and reuse.
+class Tile extends StatefulWidget {
+  const Tile(this.label, {super.key});
+
+  final String label;
+
+  @override
+  State<Tile> createState() => _TileState();
+}
+
+class _TileState extends State<Tile> {
+  int taps = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () => setState(() => taps++),
+      child: Text('${widget.label}: $taps'),
     );
   }
 }
