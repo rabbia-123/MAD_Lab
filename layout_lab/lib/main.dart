@@ -101,8 +101,7 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 12),
             const Clock(), // Steps 1, 2, 3 (Clock contains the Probe)
             const SizedBox(height: 12),
-            // Step 4: temporary Row of tiles (Step 5 moves it into SwapBoard)
-            Row(children: [Tile(tileA), Tile(tileB), Tile(tileC)]),
+            const SwapBoard(), // Step 5 (replaces the temporary Tile Row)
           ],
         ),
       ),
@@ -286,6 +285,47 @@ class _TileState extends State<Tile> {
     return ElevatedButton(
       onPressed: () => setState(() => taps++),
       child: Text('${widget.label}: $taps'),
+    );
+  }
+}
+
+// ===========================================================================
+// Step 5: SwapBoard (keys)
+// ===========================================================================
+// Think (Step 5): Without keys, why did the number stay on the left?
+// Without keys Flutter matches by type and position only. After Swap, the
+// new widgets have the labels in the new order, but Flutter reuses the old
+// Element at each position. The count (taps) is saved in the State, and the
+// State stays with the Element at the same position. So the widget (label)
+// moved, but the Element and State (the number) stayed on the left.
+// With ValueKey, the Element and State follow their own widget.
+class SwapBoard extends StatefulWidget {
+  const SwapBoard({super.key});
+
+  @override
+  State<SwapBoard> createState() => _SwapBoardState();
+}
+
+class _SwapBoardState extends State<SwapBoard> {
+  var tiles = [
+    Tile(tileA, key: ValueKey(tileA)),
+    Tile(tileB, key: ValueKey(tileB)),
+    Tile(tileC, key: ValueKey(tileC)),
+  ];
+
+  void swap() => setState(() => tiles = tiles.reversed.toList());
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(children: tiles),
+        ElevatedButton(
+          key: const Key('swap'),
+          onPressed: swap,
+          child: const Text('Swap'),
+        ),
+      ],
     );
   }
 }
