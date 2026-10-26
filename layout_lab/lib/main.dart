@@ -203,6 +203,42 @@ class _ClockState extends State<Clock> {
       children: [
         Text('Session: $_seconds s', key: const Key('clock')),
         Text('Builds: $_builds', key: const Key('builds')),
+        Probe(seconds: _seconds), // no const: its number changes
+      ],
+    );
+  }
+}
+
+// ===========================================================================
+// Step 3: Probe (Widget vs Element)
+// ===========================================================================
+// Think (Step 3): Which one is cheap and thrown away, and which keeps State?
+// The Widget is cheap and thrown away. A new Widget is made on every
+// rebuild, so its number changes. The Element stays alive and it keeps the
+// State, so its number stays the same.
+// Where is the RenderObject? It is the third part, below the Element.
+// Its job is to do the real work: measure the size, set the position
+// (layout) and draw the widget on the screen (paint).
+class Probe extends StatelessWidget {
+  final int seconds;
+
+  const Probe({super.key, required this.seconds});
+
+  @override
+  Widget build(BuildContext context) {
+    final bool above =
+        context.findAncestorWidgetOfExactType<Scaffold>() != null;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Seen at: $seconds s', key: const Key('probe-seen')),
+        Text('Widget #${identityHashCode(this)}',
+            key: const Key('probe-widget')),
+        Text('Element #${identityHashCode(context)}',
+            key: const Key('probe-element')),
+        Text('Context belongs to: ${context.widget.runtimeType}',
+            key: const Key('probe-context')),
+        Text('Scaffold above me: $above', key: const Key('probe-above')),
       ],
     );
   }
