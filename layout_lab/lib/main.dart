@@ -164,6 +164,7 @@ class Clock extends StatefulWidget {
 class _ClockState extends State<Clock> {
   late Timer _timer;
   int _seconds = startSec;
+  int _builds = 0;
 
   // Think (Step 1): Why do we start the Timer in initState and not in build?
   // initState runs only ONE time, so we get only one timer.
@@ -173,6 +174,7 @@ class _ClockState extends State<Clock> {
   @override
   void initState() {
     super.initState();
+    lifecycleLog.add('initState');
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() => _seconds += tick);
       if (_seconds >= stopAt) timer.cancel(); // stop at your limit
@@ -180,7 +182,28 @@ class _ClockState extends State<Clock> {
   }
 
   @override
+  void dispose() {
+    _timer.cancel();
+    lifecycleLog.add('dispose');
+    super.dispose();
+  }
+
+  // Think (Step 2): Why does Builds go up by one per second, not two?
+  // Every second the timer calls setState one time. One setState means
+  // one rebuild, so build runs one time and Builds goes up by one.
+  // What if _timer.cancel() is missing in dispose?
+  // The timer keeps running after the widget is gone. It calls setState on
+  // a widget that is already removed, and the console shows an error like
+  // "setState() called after dispose()". It also wastes memory.
+  @override
   Widget build(BuildContext context) {
-    return Text('Session: $_seconds s', key: const Key('clock'));
+    _builds++;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Session: $_seconds s', key: const Key('clock')),
+        Text('Builds: $_builds', key: const Key('builds')),
+      ],
+    );
   }
 }
