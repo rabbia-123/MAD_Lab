@@ -97,6 +97,7 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 12),
             // Add each new widget BELOW the previous one, in the order the
             // steps tell you, with a SizedBox(height: 12) between widgets.
+            const Clock(), // Step 1
           ],
         ),
       ),
@@ -147,5 +148,39 @@ class SummaryRow extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+// ===========================================================================
+// Step 1: Clock (Timer in initState)
+// ===========================================================================
+class Clock extends StatefulWidget {
+  const Clock({super.key});
+
+  @override
+  State<Clock> createState() => _ClockState();
+}
+
+class _ClockState extends State<Clock> {
+  late Timer _timer;
+  int _seconds = startSec;
+
+  // Think (Step 1): Why do we start the Timer in initState and not in build?
+  // initState runs only ONE time, so we get only one timer.
+  // build runs again and again (every setState calls it). If we started the
+  // timer in build, every rebuild would start one more timer. Many timers
+  // would run together, so the clock would become faster and faster.
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() => _seconds += tick);
+      if (_seconds >= stopAt) timer.cancel(); // stop at your limit
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text('Session: $_seconds s', key: const Key('clock'));
   }
 }
